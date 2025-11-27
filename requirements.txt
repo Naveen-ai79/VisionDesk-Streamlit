@@ -1,0 +1,18 @@
+streamlit
+pandas
+numpy
+python-dotenv
+fastembed
+
+pdfplumber
+PyPDF2
+python-docx
+
+Werkzeug
+requests
+
+# For email sending (already built-in to Python)
+# smtplib does NOT go into requirements
+
+# If your environment needs it (Windows typically):
+lxml
