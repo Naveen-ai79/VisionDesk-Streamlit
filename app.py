@@ -686,10 +686,10 @@ if st.session_state.results:
         email = r.get("email", "N/A")
         st.markdown(f"**{idx}. {name}** — Score: `{score_str}` — Email: `{email}`")
 
-    # -----------------------
-    # RANKED CANDIDATES TABLE
-    # -----------------------
-    df = pd.DataFrame(results)
+# -----------------------
+# RANKED CANDIDATES TABLE
+# -----------------------
+df = pd.DataFrame(results)
 
 # -----------------------
 # Columns to show in table (with semantic & skill scores)
@@ -727,12 +727,12 @@ if "score" in df.columns:
     df["score"] = df["score"].apply(lambda v: f"{float(v):.2f}%" if v is not None else "N/A")
 
 # -----------------------
-# Build display table
+# Build final table
 # -----------------------
 if keep_cols:
     df_table = df[keep_cols].copy()
 
-    # Convert skills list → comma separated text
+    # Skills as comma-separated
     if "skills" in df_table.columns:
         df_table["skills"] = df_table["skills"].apply(
             lambda s: ", ".join(s) if isinstance(s, (list, tuple)) else (s or "")
@@ -740,11 +740,9 @@ if keep_cols:
 
     st.write("### ⭐ Ranked Candidates")
 
-    # -----------------------
     # Row color styling
-    # -----------------------
     def style_table(df_vis: pd.DataFrame):
-        def parse_score(val):
+        def parse(val):
             try:
                 if isinstance(val, str) and val.endswith("%"):
                     return float(val.rstrip("%"))
@@ -752,24 +750,25 @@ if keep_cols:
             except:
                 return 0.0
 
-        score_map = {r.get("name", ""): parse_score(r.get("score", 0)) for r in results}
+        score_map = {r.get("name", ""): parse(r.get("score", 0)) for r in results}
 
         def row_style(row):
             nm = row.get("name", "")
             sc = score_map.get(nm, 0)
 
             if sc >= 70:
-                color = "#b3ffb3"      # green
+                color = "#b3ffb3"
             elif sc >= 50:
-                color = "#ffe0b3"      # orange
+                color = "#ffe0b3"
             else:
-                color = "#ffcccc"      # red
+                color = "#ffcccc"
 
             return [f"background-color: {color}"] * len(row)
 
         return df_vis.style.apply(row_style, axis=1)
 
     st.dataframe(style_table(df_table), use_container_width=True)
+
 
 
     # -------------------------------------------------------
@@ -798,6 +797,7 @@ if keep_cols:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
 
 
 
