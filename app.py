@@ -291,7 +291,7 @@ def extract_skills_from_text(text: str):
             found.add(skill)
 
     return list(found)
-===============================================
+
     # fuzzy-ish checks: individual tokens as fallback
     tokens = set(t.split())
     for token in tokens:
@@ -752,6 +752,7 @@ if st.session_state.results:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
 
 
 
