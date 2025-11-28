@@ -694,7 +694,7 @@ if st.session_state.results:
     # -----------------------
     # Columns to show in the table (including semantic & skill)
     # -----------------------
-        keep_cols = []
+    keep_cols = []
 
         if "name" in df.columns:
          keep_cols.append("name")
@@ -781,6 +781,7 @@ if st.session_state.results:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
 
 
 
