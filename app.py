@@ -686,90 +686,62 @@ if st.session_state.results:
         email = r.get("email", "N/A")
         st.markdown(f"**{idx}. {name}** — Score: `{score_str}` — Email: `{email}`")
 
-# -----------------------
-# RANKED CANDIDATES TABLE
-# -----------------------
-df = pd.DataFrame(results)
+    # -----------------------
+    # RANKED CANDIDATES TABLE
+    # -----------------------
+    df = pd.DataFrame(results)
 
-# -----------------------
-# Columns to show in table (with semantic & skill scores)
-# -----------------------
-keep_cols = []
+    keep_cols = []
+    if "name" in df.columns: keep_cols.append("name")
+    if "email" in df.columns: keep_cols.append("email")
+    if "score" in df.columns: keep_cols.append("score")
+    if "semantic_score" in df.columns: keep_cols.append("semantic_score")
+    if "skill_score" in df.columns: keep_cols.append("skill_score")
+    if "skills" in df.columns: keep_cols.append("skills")
 
-if "name" in df.columns:
-    keep_cols.append("name")
+    # Format scores nicely
+    if "semantic_score" in df.columns:
+        df["semantic_score"] = df["semantic_score"].apply(lambda v: f"{float(v):.2f}%")
+    if "skill_score" in df.columns:
+        df["skill_score"] = df["skill_score"].apply(lambda v: f"{float(v):.2f}%")
+    if "score" in df.columns:
+        df["score"] = df["score"].apply(lambda v: f"{float(v):.2f}%")
 
-if "email" in df.columns:
-    keep_cols.append("email")
+    if keep_cols:
+        df_table = df[keep_cols].copy()
 
-if "score" in df.columns:
-    keep_cols.append("score")
+        if "skills" in df_table.columns:
+            df_table["skills"] = df_table["skills"].apply(
+                lambda s: ", ".join(s) if isinstance(s, (list, tuple)) else (s or "")
+            )
 
-if "semantic_score" in df.columns:
-    keep_cols.append("semantic_score")
+        st.write("### ⭐ Ranked Candidates")
 
-if "skill_score" in df.columns:
-    keep_cols.append("skill_score")
+        def style_table(df_vis: pd.DataFrame):
+            def parse(v):
+                try:
+                    if isinstance(v, str) and v.endswith("%"):
+                        return float(v.rstrip("%"))
+                    return float(v)
+                except:
+                    return 0.0
 
-if "skills" in df.columns:
-    keep_cols.append("skills")
+            score_map = {r.get("name", ""): parse(r.get("score", 0)) for r in results}
 
-# -----------------------
-# Format scores as percentage
-# -----------------------
-if "semantic_score" in df.columns:
-    df["semantic_score"] = df["semantic_score"].apply(lambda v: f"{float(v):.2f}%" if v is not None else "N/A")
+            def row_style(row):
+                nm = row.get("name", "")
+                sc = score_map.get(nm, 0)
+                if sc >= 70:
+                    color = "#b3ffb3"
+                elif sc >= 50:
+                    color = "#ffe0b3"
+                else:
+                    color = "#ffcccc"
+                return [f"background-color: {color}"] * len(row)
 
-if "skill_score" in df.columns:
-    df["skill_score"] = df["skill_score"].apply(lambda v: f"{float(v):.2f}%" if v is not None else "N/A")
+            return df_vis.style.apply(row_style, axis=1)
 
-if "score" in df.columns:
-    df["score"] = df["score"].apply(lambda v: f"{float(v):.2f}%" if v is not None else "N/A")
-
-# -----------------------
-# Build final table
-# -----------------------
-if keep_cols:
-    df_table = df[keep_cols].copy()
-
-    # Skills as comma-separated
-    if "skills" in df_table.columns:
-        df_table["skills"] = df_table["skills"].apply(
-            lambda s: ", ".join(s) if isinstance(s, (list, tuple)) else (s or "")
-        )
-
-    st.write("### ⭐ Ranked Candidates")
-
-    # Row color styling
-    def style_table(df_vis: pd.DataFrame):
-        def parse(val):
-            try:
-                if isinstance(val, str) and val.endswith("%"):
-                    return float(val.rstrip("%"))
-                return float(val)
-            except:
-                return 0.0
-
-        score_map = {r.get("name", ""): parse(r.get("score", 0)) for r in results}
-
-        def row_style(row):
-            nm = row.get("name", "")
-            sc = score_map.get(nm, 0)
-
-            if sc >= 70:
-                color = "#b3ffb3"
-            elif sc >= 50:
-                color = "#ffe0b3"
-            else:
-                color = "#ffcccc"
-
-            return [f"background-color: {color}"] * len(row)
-
-        return df_vis.style.apply(row_style, axis=1)
-
-    st.dataframe(style_table(df_table), use_container_width=True)
-
-
+        st.dataframe(style_table(df_table), use_container_width=True)
 
     # -------------------------------------------------------
     # SEND EMAIL BUTTON
@@ -797,6 +769,8 @@ if keep_cols:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
+
 
 
 
