@@ -691,45 +691,34 @@ if st.session_state.results:
     # -----------------------
     df = pd.DataFrame(results)
 
-    # -----------------------
-    # Columns to show in the table (including semantic & skill)
-    # -----------------------
-    keep_cols = []
+# -----------------------
+# Columns to show in table
+# -----------------------
+keep_cols = []
+if "name" in df.columns:
+    keep_cols.append("name")
+if "email" in df.columns:
+    keep_cols.append("email")
+if "score" in df.columns:
+    keep_cols.append("score")
+if "semantic_score" in df.columns:
+    keep_cols.append("semantic_score")
+if "skill_score" in df.columns:
+    keep_cols.append("skill_score")
+if "skills" in df.columns:
+    keep_cols.append("skills")
 
-        if "name" in df.columns:
-         keep_cols.append("name")
+# Format scores as percentage
+if "semantic_score" in df.columns:
+    df["semantic_score"] = df["semantic_score"].apply(lambda v: f"{float(v):.2f}%")
+if "skill_score" in df.columns:
+    df["skill_score"] = df["skill_score"].apply(lambda v: f"{float(v):.2f}%")
+if "score" in df.columns:
+    df["score"] = df["score"].apply(lambda v: f"{float(v):.2f}%")
 
-        if "email" in df.columns:
-        keep_cols.append("email")
+if keep_cols:
+    df_table = df[keep_cols].copy()
 
-        # Add final overall score
-        if "score" in df.columns:
-        keep_cols.append("score")
-
-        # NEW: Semantic score
-        if "semantic_score" in df.columns:
-            keep_cols.append("semantic_score")
-
-        # NEW: Skill score
-        if "skill_score" in df.columns:
-            keep_cols.append("skill_score")
-
-        # Skills list from resume
-        if "skills" in df.columns:
-            keep_cols.append("skills")
-
-       # Format numeric scores nicely
-        if "semantic_score" in df.columns:
-       df["semantic_score"] = df["semantic_score"].apply(lambda v: f"{float(v):.2f}%")
-        if "skill_score" in df.columns:
-       df["skill_score"] = df["skill_score"].apply(lambda v: f"{float(v):.2f}%")
-       if "score" in df.columns:
-      df["score"] = df["score"].apply(lambda v: f"{float(v):.2f}%")
-
-
-
-    if keep_cols:
-        df_table = df[keep_cols].copy()
         if "skills" in df_table.columns:
             df_table["skills"] = df_table["skills"].apply(
                 lambda s: ", ".join(s) if isinstance(s, (list, tuple)) else (s or "")
@@ -781,6 +770,7 @@ if st.session_state.results:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
 
 
 
