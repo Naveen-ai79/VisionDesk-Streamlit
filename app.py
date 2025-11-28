@@ -461,13 +461,19 @@ uploaded_files = st.file_uploader(
 )
 
 col1, col2 = st.columns([2, 1])
+
+file_count = len(uploaded_files) if uploaded_files else 1
+
 with col1:
     top_n = st.number_input(
         "Top N candidates to show",
         min_value=1,
-        max_value=50,
-        value=3
+        max_value=file_count,
+        value=min(3, file_count),
+        step=1,
+        key="dynamic_topn"
     )
+
 
 
 
@@ -613,4 +619,5 @@ if st.session_state.results:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
 
