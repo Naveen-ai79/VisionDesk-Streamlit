@@ -265,14 +265,14 @@ class EmailService:
         body = f"""
 Dear {candidate_name},
 
-We are pleased to inform you that you have been shortlisted for the selection process at "AAA' Technologies".
+We are pleased to inform you that you have been shortlisted for the selection process at "Nav Tech Solution".
 
 Our team will share further details regarding the next steps shortly.
 Please keep an eye on your email for updates.
 
 Regards,
 HR Team
-"AAA" Technologies
+NAV Tech Solution , Bangalore.
 """
 
         message = MIMEMultipart()
@@ -613,3 +613,4 @@ if st.session_state.results:
 
         st.success("Email send attempt completed. See logs below.")
         st.json(mail_logs)
+
